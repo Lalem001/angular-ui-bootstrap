@@ -77,13 +77,17 @@ describe('$modal', function () {
 
       toHaveModalsOpen: function(noOfModals) {
 
-        var modalDomEls = this.actual.find('body > div.modal');
+        var modalDomEls = this.actual === $document ?
+          this.actual.find('body > div.modal') :
+          angular.element(this.actual).children('div.modal');
         return modalDomEls.length === noOfModals;
       },
 
       toHaveBackdrop: function() {
 
-        var backdropDomEls = this.actual.find('body > div.modal-backdrop');
+        var backdropDomEls = this.actual === $document ?
+          this.actual.find('body > div.modal-backdrop') :
+          angular.element(this.actual).children('div.modal-backdrop');
         this.message = function() {
           return 'Expected "' + angular.mock.dump(backdropDomEls) + '" to be a backdrop element".';
         };
@@ -260,6 +264,24 @@ describe('$modal', function () {
 
       expect($document).toHaveModalOpenWithContent('Content', 'div');
       expect($document).not.toHaveBackdrop();
+    });
+  });
+
+  describe('default appendTo can be changed in a provider', function () {
+    it('should allow overriding default appendTo in a provider', function () {
+      var container = $modalProvider.appendTo = angular.element('<div>');
+
+      var modal = open({template: '<div>Content</div>'});
+      expect(container).toHaveClass('modal-open');
+      expect(container).toHaveModalsOpen(1);
+      expect(container).toHaveBackdrop();
+
+      dismiss(modal);
+      waitForBackdropAnimation();
+
+      expect(container).not.toHaveClass('modal-open');
+      expect(container).toHaveModalsOpen(0);
+      expect(container).not.toHaveBackdrop();
     });
   });
 

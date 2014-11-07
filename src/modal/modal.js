@@ -159,8 +159,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
       function removeModalWindow(modalInstance) {
 
-        var body = $document.find('body').eq(0);
         var modalWindow = openedWindows.get(modalInstance).value;
+        var container = modalWindow.appendTo;
 
         //clean up the stack
         openedWindows.remove(modalInstance);
@@ -168,7 +168,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         //remove window DOM element
         removeAfterAnimate(modalWindow.modalDomEl, modalWindow.modalScope, 300, function() {
           modalWindow.modalScope.$destroy();
-          body.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
+          container.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
           checkRemoveBackdrop();
         });
       }
@@ -238,10 +238,11 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
           deferred: modal.deferred,
           modalScope: modal.scope,
           backdrop: modal.backdrop,
-          keyboard: modal.keyboard
+          keyboard: modal.keyboard,
+          appendTo: modal.appendTo
         });
 
-        var body = $document.find('body').eq(0),
+        var container = modal.appendTo,
             currBackdropIndex = backdropIndex();
 
         if (currBackdropIndex >= 0 && !backdropDomEl) {
@@ -250,7 +251,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
           var angularBackgroundDomEl = angular.element('<div modal-backdrop></div>');
           angularBackgroundDomEl.attr('backdrop-class', modal.backdropClass);
           backdropDomEl = $compile(angularBackgroundDomEl)(backdropScope);
-          body.append(backdropDomEl);
+          container.append(backdropDomEl);
         }
 
         var angularDomEl = angular.element('<div modal-window></div>');
@@ -264,8 +265,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
         var modalDomEl = $compile(angularDomEl)(modal.scope);
         openedWindows.top().value.modalDomEl = modalDomEl;
-        body.append(modalDomEl);
-        body.addClass(OPENED_MODAL_CLASS);
+        container.append(modalDomEl);
+        container.addClass(OPENED_MODAL_CLASS);
       };
 
       $modalStack.close = function (modalInstance, result) {
@@ -306,6 +307,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         backdrop: true, //can be also false or 'static'
         keyboard: true
       },
+      appendTo: angular.element(document).find('body').eq(0),
       $get: ['$injector', '$rootScope', '$q', '$http', '$templateCache', '$controller', '$modalStack',
         function ($injector, $rootScope, $q, $http, $templateCache, $controller, $modalStack) {
 
@@ -391,6 +393,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
                 backdropClass: modalOptions.backdropClass,
                 windowClass: modalOptions.windowClass,
                 windowTemplateUrl: modalOptions.windowTemplateUrl,
+                appendTo: $modalProvider.appendTo,
                 size: modalOptions.size
               });
 
