@@ -267,9 +267,9 @@ describe('$modal', function () {
     });
   });
 
-  describe('default appendTo can be changed in a provider', function () {
+  describe('defaultContainer can be changed in a provider', function () {
     it('should allow overriding default appendTo in a provider', function () {
-      var container = $modalProvider.appendTo = angular.element('<div>');
+      var container = $modalProvider.defaultContainer = angular.element('<div>');
 
       var modal = open({template: '<div>Content</div>'});
       expect(container).toHaveClass('modal-open');

@@ -160,7 +160,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       function removeModalWindow(modalInstance) {
 
         var modalWindow = openedWindows.get(modalInstance).value;
-        var container = modalWindow.appendTo;
+        var container = modalWindow.container;
 
         //clean up the stack
         openedWindows.remove(modalInstance);
@@ -239,10 +239,10 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
           modalScope: modal.scope,
           backdrop: modal.backdrop,
           keyboard: modal.keyboard,
-          appendTo: modal.appendTo
+          container: modal.container
         });
 
-        var container = modal.appendTo,
+        var container = modal.container,
             currBackdropIndex = backdropIndex();
 
         if (currBackdropIndex >= 0 && !backdropDomEl) {
@@ -307,7 +307,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         backdrop: true, //can be also false or 'static'
         keyboard: true
       },
-      appendTo: angular.element(document).find('body').eq(0),
+      defaultContainer: angular.element(document).find('body').eq(0),
       $get: ['$injector', '$rootScope', '$q', '$http', '$templateCache', '$controller', '$modalStack',
         function ($injector, $rootScope, $q, $http, $templateCache, $controller, $modalStack) {
 
@@ -393,7 +393,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
                 backdropClass: modalOptions.backdropClass,
                 windowClass: modalOptions.windowClass,
                 windowTemplateUrl: modalOptions.windowTemplateUrl,
-                appendTo: $modalProvider.appendTo,
+                container: $modalProvider.defaultContainer,
                 size: modalOptions.size
               });
 
