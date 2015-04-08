@@ -75,9 +75,11 @@ describe('$modal', function () {
       toHaveModalOpenWithContent: function(util, customEqualityTesters) {
         return {
           compare: function(actual, content, selector) {
-            var contentToCompare, modalDomEls = actual.find('body > div.modal > div.modal-dialog > div.modal-content');
+            var container = (actual === $document) ? actual.find('body') : actual;
 
-            contentToCompare = selector ? modalDomEls.find(selector) : modalDomEls;
+            var modalDomEls = container.find('div.modal > div.modal-dialog > div.modal-content');
+
+            var contentToCompare = selector ? modalDomEls.find(selector) : modalDomEls;
 
             var result = {
               pass: modalDomEls.css('display') === 'block' && contentToCompare.html() === content
@@ -96,7 +98,9 @@ describe('$modal', function () {
       toHaveModalsOpen: function(util, customEqualityTesters) {
         return {
           compare: function(actual, expected) {
-            var modalDomEls = actual.find('body > div.modal');
+            var container = (actual === $document) ? actual.find('body') : actual;
+
+            var modalDomEls = container.find('div.modal');
 
             var result = {
               pass: util.equals(modalDomEls.length, expected, customEqualityTesters)
@@ -115,7 +119,9 @@ describe('$modal', function () {
       toHaveBackdrop: function(util, customEqualityTesters) {
         return {
           compare: function(actual, expected) {
-            var backdropDomEls = actual.find('body > div.modal-backdrop');
+            var container = (actual === $document) ? actual.find('body') : actual;
+
+            var backdropDomEls = container.find('div.modal-backdrop');
 
             var result = {
               pass: util.equals(backdropDomEls.length, 1, customEqualityTesters)
@@ -366,6 +372,30 @@ describe('$modal', function () {
 
       expect($document).toHaveModalOpenWithContent('Content', 'div');
       expect($document).not.toHaveBackdrop();
+    });
+  });
+
+  describe('defaultContainer can be changed in a provider', function () {
+    it('should allow overriding defaultContainer in a provider', function () {
+      var container = $modalProvider.defaultContainer = angular.element('<div>');
+
+      var modal = open({template: '<div>Content</div>'});
+      expect(container).toHaveModalsOpen(1);
+      expect(container).toHaveClass('modal-open');
+      expect(container).toHaveBackdrop();
+
+      // Sanity checks
+      var body = $document.find('body');
+      expect(body).toHaveModalsOpen(0);
+      expect(body).not.toHaveClass('modal-open');
+      expect(body).not.toHaveBackdrop();
+
+      dismiss(modal, 'closing in test');
+      $animate.triggerCallbacks();
+
+      expect(container).toHaveModalsOpen(0);
+      expect(container).not.toHaveClass('modal-open');
+      expect(container).not.toHaveBackdrop();
     });
   });
 
